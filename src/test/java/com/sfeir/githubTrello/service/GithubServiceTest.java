@@ -103,7 +103,7 @@ public class GithubServiceTest {
 		}
 
 		Collection<Branch> getAllBranches() {
-			return fromJsonToObjects(restClient.url("/repos/%s/%s/git/refs", user, repositoryName).get(), Branch.class);
+			return fromJsonToObjects(restClient.url("/repos/%s/%s/git/refs/heads", user, repositoryName).get(), Branch.class);
 		}
 
 		String deleteBranch(Branch branch) {
