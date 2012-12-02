@@ -14,8 +14,12 @@ import org.codehaus.jackson.node.ArrayNode;
 
 import com.sfeir.githubTrello.domain.github.Branch;
 import com.sfeir.githubTrello.domain.github.Branch.Commit;
+import com.sfeir.githubTrello.domain.github.PullRequest;
+import com.sfeir.githubTrello.domain.github.PullRequest.Head;
 import com.sfeir.githubTrello.json.github.BranchMixin;
 import com.sfeir.githubTrello.json.github.CommitMixin;
+import com.sfeir.githubTrello.json.github.HeadMixin;
+import com.sfeir.githubTrello.json.github.PullRequestMixin;
 
 import static java.util.Collections.*;
 
@@ -89,9 +93,14 @@ public final class Json {
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private static final Log logger = LogFactory.getLog(Json.class);
 	static {
-		mapper.getSerializationConfig().addMixInAnnotations(Branch.class, BranchMixin.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Branch.class, BranchMixin.class);
-		mapper.getSerializationConfig().addMixInAnnotations(Commit.class, CommitMixin.class);
-		mapper.getDeserializationConfig().addMixInAnnotations(Commit.class, CommitMixin.class);
+		mix(Branch.class, BranchMixin.class);
+		mix(Commit.class, CommitMixin.class);
+		mix(Head.class, HeadMixin.class);
+		mix(PullRequest.class, PullRequestMixin.class);
+	}
+
+	private static void mix(Class<?> targetClass, Class<?> mixinClass) {
+		mapper.getSerializationConfig().addMixInAnnotations(targetClass, mixinClass);
+		mapper.getDeserializationConfig().addMixInAnnotations(targetClass, mixinClass);
 	}
 }

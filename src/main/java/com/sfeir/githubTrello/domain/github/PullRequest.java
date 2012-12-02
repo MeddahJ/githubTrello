@@ -1,11 +1,7 @@
 package com.sfeir.githubTrello.domain.github;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import static org.apache.commons.lang3.StringUtils.*;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class PullRequest {
 
 	public String getHtmlUrl() {
@@ -40,7 +36,11 @@ public class PullRequest {
 		return isNotEmpty(id) && isNotEmpty(title) && head != null;
 	}
 
-	void setState(String state) {
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
 		if (!"open".equals(state) && !"closed".equals(state)) {
 			throw new IllegalArgumentException("State must be 'open' or 'closed': " + state);
 		}
@@ -48,13 +48,12 @@ public class PullRequest {
 	}
 
 	private String title;
-	@JsonProperty("body") private String description;
-	@JsonProperty("html_url") private String htmlUrl;
-	@JsonProperty("state") private String state;
-	@JsonProperty("number") private String id;
+	private String description;
+	private String htmlUrl;
+	private String state;
+	private String id;
 	private Head head;
 
-	@JsonIgnoreProperties(ignoreUnknown = true)
 	public class Head {
 
 		public String getName() {
@@ -65,7 +64,7 @@ public class PullRequest {
 			return sha;
 		}
 
-		@JsonProperty("ref") private String name;
+		private String name;
 		private String sha;
 	}
 }
