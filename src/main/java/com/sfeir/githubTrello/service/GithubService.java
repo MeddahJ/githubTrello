@@ -28,7 +28,7 @@ public class GithubService {
 
 		baseBranch = getBranch(repository.getBaseBranchName());
 		if (!baseBranch.exists()) {
-			logger.warn(format("Originating commit for branch %s not found", baseBranch));
+			logger.warn(format("Originating commit for branch %s not found", repository.getBaseBranchName()));
 		}
 	}
 
