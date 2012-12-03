@@ -3,7 +3,6 @@ package com.sfeir.githubTrello.domain.trello;
 import java.util.Collection;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import com.sfeir.githubTrello.wrapper.Json;
 
@@ -83,7 +82,7 @@ public class List {
 
 	private String id;
 	private String name;
-	@JsonProperty("idBoard") private String boardId;
+	private String boardId;
 	private Collection<Card> cards = emptyList();
 	private String cardsInJson;
 }

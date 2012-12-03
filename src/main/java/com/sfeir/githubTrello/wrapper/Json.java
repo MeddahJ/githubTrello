@@ -16,10 +16,14 @@ import com.sfeir.githubTrello.domain.github.Branch;
 import com.sfeir.githubTrello.domain.github.Branch.Commit;
 import com.sfeir.githubTrello.domain.github.PullRequest;
 import com.sfeir.githubTrello.domain.github.PullRequest.Head;
+import com.sfeir.githubTrello.domain.trello.Card;
+import com.sfeir.githubTrello.domain.trello.List;
 import com.sfeir.githubTrello.json.github.BranchMixin;
 import com.sfeir.githubTrello.json.github.CommitMixin;
 import com.sfeir.githubTrello.json.github.HeadMixin;
 import com.sfeir.githubTrello.json.github.PullRequestMixin;
+import com.sfeir.githubTrello.json.trello.CardMixin;
+import com.sfeir.githubTrello.json.trello.ListMixin;
 
 import static java.util.Collections.*;
 
@@ -97,6 +101,8 @@ public final class Json {
 		mix(Commit.class, CommitMixin.class);
 		mix(Head.class, HeadMixin.class);
 		mix(PullRequest.class, PullRequestMixin.class);
+		mix(Card.class, CardMixin.class);
+		mix(List.class, ListMixin.class);
 	}
 
 	private static void mix(Class<?> targetClass, Class<?> mixinClass) {
