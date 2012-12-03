@@ -3,17 +3,20 @@ package com.sfeir.githubTrello.json.github;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import com.sfeir.githubTrello.domain.github.Branch.Commit;
+import com.sfeir.githubTrello.domain.github.Branch;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface BranchMixin {
+public abstract class BranchMixin extends Branch {
 
+	@Override
 	@JsonProperty("name")
-	public String getName();
+	public abstract String getName();
 
+	@Override
 	@JsonProperty("object")
-	public Commit getCommit();
+	public abstract Commit getCommit();
 
+	@Override
 	@JsonProperty("ref")
-	public String getRef();
+	public abstract String getRef();
 }

@@ -54,7 +54,7 @@ public class PullRequest {
 	private String id;
 	private Head head;
 
-	public class Head {
+	public static class Head {
 
 		public String getName() {
 			return name;

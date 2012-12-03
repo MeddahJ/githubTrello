@@ -25,7 +25,7 @@ public class Branch {
 	private String ref;
 
 
-	public class Commit {
+	public static class Commit {
 		public String getSha() {
 			return sha;
 		}

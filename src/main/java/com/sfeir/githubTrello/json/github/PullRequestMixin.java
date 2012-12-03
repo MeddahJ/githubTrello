@@ -3,30 +3,38 @@ package com.sfeir.githubTrello.json.github;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import com.sfeir.githubTrello.domain.github.PullRequest.Head;
+import com.sfeir.githubTrello.domain.github.PullRequest;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface PullRequestMixin {
+public abstract class PullRequestMixin extends PullRequest {
 
+	@Override
 	@JsonProperty("html_url")
-	public String getHtmlUrl();
+	public abstract String getHtmlUrl();
 
+	@Override
 	@JsonProperty("number")
-	public String getId();
+	public abstract String getId();
 
+	@Override
 	@JsonProperty("title")
-	public String getTitle();
+	public abstract String getTitle();
 
+	@Override
 	@JsonProperty("body")
-	public String getDescription();
+	public abstract String getDescription();
 
-	public Head getHead();
+	@Override
+	@JsonProperty("head")
+	public abstract Head getHead();
 
+	@Override
 	@JsonProperty("state")
-	public String getState();
+	public abstract String getState();
 
+	@Override
 	@JsonProperty("state")
-	public void setState(String state);
+	public abstract void setState(String state);
 
 
 }
