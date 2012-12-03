@@ -2,11 +2,13 @@ package com.sfeir.githubTrello.json.trello;
 
 import java.util.Collection;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import com.sfeir.githubTrello.domain.trello.Card;
 import com.sfeir.githubTrello.domain.trello.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class ListMixin extends List {
 
 	@Override

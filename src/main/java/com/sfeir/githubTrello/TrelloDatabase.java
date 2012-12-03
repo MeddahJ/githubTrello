@@ -10,10 +10,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.sfeir.githubTrello.domain.trello.Board;
+import com.sfeir.githubTrello.domain.trello.Card;
 import com.sfeir.githubTrello.domain.trello.List;
 
 import static com.google.common.base.Strings.*;
 import static com.sfeir.githubTrello.domain.trello.List.*;
+import static com.sfeir.githubTrello.wrapper.Json.*;
 import static java.lang.String.*;
 import static org.apache.commons.dbutils.DbUtils.*;
 
@@ -54,9 +56,9 @@ public final class TrelloDatabase implements AutoCloseable {
 			selectStatement.setString(3, listId);
 			ResultSet results = selectStatement.executeQuery();
 			if (!results.next()) {
-				return listBuilder().build();
+				return nullList();
 			}
-			return listBuilder().id(results.getString(LIST_ID_FIELD)).cardsInJson(results.getString(CARDS_FIELD)).build();
+			return listBuilder().id(results.getString(LIST_ID_FIELD)).cards(fromJsonToObjects(results.getString(CARDS_FIELD), Card.class)).build();
 		}
 	}
 
@@ -69,7 +71,7 @@ public final class TrelloDatabase implements AutoCloseable {
 			mergeStatement.setString(1, token);
 			mergeStatement.setString(2, board.getId());
 			mergeStatement.setString(3, list.getId());
-			mergeStatement.setString(4, list.getCardsInJson());
+			mergeStatement.setString(4, fromObjectToJson(list.getCards()));
 			mergeStatement.execute();
 		}
 	}

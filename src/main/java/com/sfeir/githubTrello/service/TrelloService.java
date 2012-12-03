@@ -29,11 +29,11 @@ public class TrelloService {
 	public final List getList(Board board, String listName) {
 		for (List list : getListsFromBoard(board)) {
 			if (listName.equals(list.getName())) {
-				return list.withNewCardsInJson(getCardsFromList(list));
+				return list.withNewCards(getCardsFromList(list));
 			}
 		}
 		logger.warn("Trello list '" + listName + "' not found");
-		return listBuilder().build();
+		return nullList();
 	}
 
 	//		public final Card updateCardDescription(Card card, String newDescription) {
@@ -45,8 +45,8 @@ public class TrelloService {
 				List.class);
 	}
 
-	private String getCardsFromList(List list) {
-		return restClient.url("/lists/%s/cards", list.getId()).get();
+	private Collection<Card> getCardsFromList(List list) {
+		return fromJsonToObjects(restClient.url("/lists/%s/cards", list.getId()).get(), Card.class);
 	}
 
 	protected RestClient restClient;

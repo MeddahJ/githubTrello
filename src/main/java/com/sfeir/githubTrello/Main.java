@@ -47,8 +47,8 @@ public final class Main {
 
 		List newToDoList = trelloService.getList(board, trelloBacklogList);
 		List newDoingList = trelloService.getList(board, trelloInProgressList);
-		List oldToDoList = listBuilder().build();
-		List oldDoingList = listBuilder().build();
+		List oldToDoList = nullList();
+		List oldDoingList = nullList();
 
 		try (TrelloDatabase database = trelloDatabaseBuilder()
 				.board(board)
