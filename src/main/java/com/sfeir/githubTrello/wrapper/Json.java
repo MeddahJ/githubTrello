@@ -2,29 +2,21 @@ package com.sfeir.githubTrello.wrapper;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.sfeir.githubTrello.domain.github.Branch;
-import com.sfeir.githubTrello.domain.github.Branch.Commit;
-import com.sfeir.githubTrello.domain.github.PullRequest;
-import com.sfeir.githubTrello.domain.github.PullRequest.Head;
-import com.sfeir.githubTrello.domain.trello.Card;
-import com.sfeir.githubTrello.domain.trello.List;
-import com.sfeir.githubTrello.json.github.BranchMixin;
-import com.sfeir.githubTrello.json.github.CommitMixin;
-import com.sfeir.githubTrello.json.github.HeadMixin;
-import com.sfeir.githubTrello.json.github.PullRequestMixin;
-import com.sfeir.githubTrello.json.trello.CardMixin;
-import com.sfeir.githubTrello.json.trello.ListMixin;
+import static com.google.common.collect.Maps.*;
 
 import static java.util.Collections.*;
 
 public final class Json {
-	public static <T> T fromJsonToObject(String json, Class<T> type) {
+
+	public <T> T toObject(String json, Class<T> type) {
 		try {
 			return mapper.readValue(json, type);
 		}
@@ -40,7 +32,7 @@ public final class Json {
 		}
 	}
 
-	public static <T> Collection<T> fromJsonToObjects(String json, Class<T> type) {
+	public <T> Collection<T> toObjects(String json, Class<T> type) {
 		try {
 			return mapper.readValue(json, mapper.getTypeFactory().constructCollectionType(Collection.class, type));
 		}
@@ -50,7 +42,7 @@ public final class Json {
 		}
 	}
 
-	public static String fromObjectToJson(Object object) {
+	public String toString(Object object) {
 		try {
 			return mapper.writeValueAsString(object);
 		}
@@ -60,7 +52,7 @@ public final class Json {
 		}
 	}
 
-	public static String extractValue(String json, String... attributes) {
+	public String extract(String json, String... attributes) {
 		try {
 			JsonNode node = mapper.readTree(json);
 			for (String attribute : attributes)
@@ -72,22 +64,35 @@ public final class Json {
 		}
 	}
 
-	private Json() {}
-
-	private static final ObjectMapper mapper = new ObjectMapper();
-	private static final Log logger = LogFactory.getLog(Json.class);
-
-	static {
-		mix(Branch.class, BranchMixin.class);
-		mix(Commit.class, CommitMixin.class);
-		mix(Head.class, HeadMixin.class);
-		mix(PullRequest.class, PullRequestMixin.class);
-		mix(Card.class, CardMixin.class);
-		mix(List.class, ListMixin.class);
+	public static Builder jsonBuilder() {
+		return new Builder();
 	}
 
-	private static void mix(Class<?> targetClass, Class<?> mixinClass) {
+	public static class Builder {
+		public Builder withMixin(Class<?> target, Class<?> mixin) {
+			mixins.put(target, mixin);
+			return this;
+		}
+
+		public Json build() {
+			Json converter = new Json();
+			for (Entry<Class<?>, Class<?>> association : mixins.entrySet()) {
+				converter.mix(association.getKey(), association.getValue());
+			}
+			return converter;
+		}
+
+		private Map<Class<?>, Class<?>> mixins = newHashMap();
+	}
+
+	private void mix(Class<?> targetClass, Class<?> mixinClass) {
 		mapper.getSerializationConfig().addMixInAnnotations(targetClass, mixinClass);
 		mapper.getDeserializationConfig().addMixInAnnotations(targetClass, mixinClass);
 	}
+
+	private Json() {}
+
+	private final ObjectMapper mapper = new ObjectMapper();
+	private static final Log logger = LogFactory.getLog(Json.class);
+
 }

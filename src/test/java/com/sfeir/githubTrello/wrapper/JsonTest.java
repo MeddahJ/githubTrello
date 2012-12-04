@@ -6,36 +6,40 @@ import com.google.common.base.Objects;
 
 import static com.google.common.base.Objects.*;
 import static com.sfeir.githubTrello.wrapper.Json.*;
-import static com.sfeir.githubTrello.wrapper.JsonTest.Dummy.*;
+import static com.sfeir.githubTrello.wrapper.JsonTest.Something.*;
 import static java.util.Arrays.*;
 import static org.fest.assertions.Assertions.*;
 
 
 public class JsonTest {
 
+	private Json json = jsonBuilder().build();
+
 	@Test
 	public void should_deserialize_serialized_object_correctly() {
-		assertThat(fromJsonToObjects(fromObjectToJson(asList(dummy("01"), dummy("02"))), Dummy.class))
-					.containsOnly(dummy("01"), dummy("02"));
+		assertThat(json.toObjects(
+						json.toString(asList(something("01"), something("02")))
+						, Something.class)
+					).containsOnly(something("01"), something("02"));
 	}
 
 	@Test
 	public void should_deserialize_into_empty_collection() {
-		assertThat(fromJsonToObjects("[]", Dummy.class)).isEmpty();
+		assertThat(json.toObjects("[]", Something.class)).isEmpty();
 	}
 
 	@Test
-	public void should_deserialize_into_empty_card() {
-		assertThat(fromJsonToObject("", Dummy.class)).isEqualTo(dummy(null));
+	public void should_deserialize_into_empty_object() {
+		assertThat(json.toObject("", Something.class)).isEqualTo(something(null));
 	}
 
 
-	static class Dummy {
+	static class Something{
 
-		public static Dummy dummy(String id) {
-			Dummy dummy = new Dummy();
-			dummy.id = id;
-			return dummy;
+		public static Something something(String id) {
+			Something something = new Something();
+			something.id = id;
+			return something;
 		}
 		
 		public String getId() {
@@ -46,7 +50,7 @@ public class JsonTest {
 		public boolean equals(Object other) {//@formatter:off
 			return (other == this) ? true
 				 : (other == null) ? false
-				 : (other instanceof Dummy) ? equal(((Dummy) other).id, id) 
+				 : (other instanceof Something) ? equal(((Something) other).id, id) 
 				 : false;
 		}//@formatter:on
 
@@ -57,6 +61,5 @@ public class JsonTest {
 
 		private String id;
 	}
-
 }
 

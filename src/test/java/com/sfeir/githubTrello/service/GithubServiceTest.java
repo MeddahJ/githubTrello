@@ -19,7 +19,6 @@ import static com.google.common.collect.ImmutableMap.*;
 import static com.google.common.collect.Lists.*;
 
 import static com.sfeir.githubTrello.domain.github.Repository.*;
-import static com.sfeir.githubTrello.wrapper.Json.*;
 import static java.util.Arrays.*;
 import static org.fest.assertions.Assertions.*;
 
@@ -103,7 +102,7 @@ public class GithubServiceTest {
 		}
 
 		Collection<Branch> getAllBranches() {
-			return fromJsonToObjects(restClient.url("/repos/%s/%s/git/refs/heads", user, repositoryName).get(), Branch.class);
+			return json.toObjects(restClient.url("/repos/%s/%s/git/refs/heads", user, repositoryName).get(), Branch.class);
 		}
 
 		String deleteBranch(Branch branch) {
@@ -120,15 +119,22 @@ public class GithubServiceTest {
 			Commit commit = branch.getCommit();
 			String commitInfo = restClient.url(commit.getUrl()).get();
 
-			Map<String, ?> newTreeInput = of("base_tree", extractValue(commitInfo, "tree", "sha"),
-					"tree", newArrayList(of("path", filename, "mode", "100644", "type", "blob", "content", newContent)));
+			Map<String, ?> newTreeInput = of(
+				"base_tree", json.extract(commitInfo, "tree", "sha"),
+					"tree", newArrayList(
+						of("path", filename, 
+							"mode", "100644", 
+							"type", "blob", 
+							"content", newContent)));
 			String newTreeInfo = restClient.url("/repos/%s/%s/git/trees", user, repositoryName).post(newTreeInput);
 
-			Map<String, ?> newCommitInput = of("message", commitMessage, "tree", extractValue(newTreeInfo, "sha"), "parents",
-					newArrayList(commit.getSha()));
+			Map<String, ?> newCommitInput = of(
+				"message", commitMessage, 
+				"tree", json.extract(newTreeInfo, "sha"),
+				"parents", newArrayList(commit.getSha()));
 			String newCommitInfo = restClient.url("/repos/%s/%s/git/commits", user, repositoryName).post(newCommitInput);
 
-			Map<String, ?> updatedBranchInput = of("sha", extractValue(newCommitInfo, "sha"), "force", true);
+			Map<String, ?> updatedBranchInput = of("sha", json.extract(newCommitInfo, "sha"), "force", true);
 			return restClient.url("/repos/%s/%s/git/refs/heads/%s", user, repositoryName, branch.getName()).post(updatedBranchInput);
 		}
 	}
