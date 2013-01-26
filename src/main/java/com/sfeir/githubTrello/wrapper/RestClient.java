@@ -37,7 +37,7 @@ public class RestClient {
 		}
 
 		public String post(Map<String, ?> input) {
-			return getResponseEntity(initRequest().post(ClientResponse.class, fromObjectToJson(input)));
+			return getResponseEntity(initRequest().post(ClientResponse.class, json.toString(input)));
 		}
 
 		public String put() {
@@ -73,4 +73,6 @@ public class RestClient {
 	private final String authenticationQuery;
 
 	private static final Log logger = LogFactory.getLog(RestClient.class);
+
+	private static Json json = jsonBuilder().build();
 }

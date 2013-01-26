@@ -2,15 +2,8 @@ package com.sfeir.githubTrello.domain.trello;
 
 import java.util.Collection;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
-
-import com.sfeir.githubTrello.wrapper.Json;
-
 import static java.util.Collections.*;
-import static org.apache.commons.lang3.StringUtils.*;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class List {
 
 	public String getId() {
@@ -29,12 +22,12 @@ public class List {
 		return cards;
 	}
 
-	public String getCardsInJson() {
-		return cardsInJson;//TODO: Convert from json outside?
+	public List withNewCards(Collection<Card> newCards) {
+		return listBuilder().id(id).name(name).boardId(boardId).cards(newCards).build();
 	}
 
-	public List withNewCardsInJson(String newCardsInJson) {
-		return listBuilder().id(id).name(name).boardId(boardId).cardsInJson(newCardsInJson).build();
+	public static List nullList() {
+		return new List();
 	}
 
 	public static Builder listBuilder() {
@@ -58,8 +51,8 @@ public class List {
 			return this;
 		}
 
-		public Builder cardsInJson(String cardsInJson) {
-			this.cardsInJson = cardsInJson;
+		public Builder cards(Collection<Card> cards) {
+			this.cards = cards;
 			return this;
 		}
 
@@ -68,22 +61,18 @@ public class List {
 			list.id = id;
 			list.name = name;
 			list.boardId = boardId;
-			list.cardsInJson = cardsInJson;
-			if (isNotEmpty(cardsInJson)) {
-				list.cards = Json.fromJsonToObjects(cardsInJson, Card.class);
-			}
+			list.cards = cards;
 			return list;
 		}
 
 		private String id;
 		private String name;
 		private String boardId;
-		private String cardsInJson;
+		private Collection<Card> cards = emptyList();
 	}
 
 	private String id;
 	private String name;
-	@JsonProperty("idBoard") private String boardId;
-	private Collection<Card> cards = emptyList();
-	private String cardsInJson;
+	private String boardId;
+	private Collection<Card> cards;
 }

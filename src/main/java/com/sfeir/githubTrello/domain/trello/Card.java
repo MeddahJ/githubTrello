@@ -1,13 +1,9 @@
 package com.sfeir.githubTrello.domain.trello;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import com.google.common.base.Objects;
 
 import static com.google.common.base.Objects.*;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class Card {
 
 	public String getId() {
@@ -133,8 +129,8 @@ public class Card {
 
 	private String id;
 	private String name;
-	@JsonProperty("desc") private String description;
-	@JsonProperty("idBoard") private String boardId;
-	@JsonProperty("idList") private String listId;
+	private String description;
+	private String boardId;
+	private String listId;
 	private String url;
 }

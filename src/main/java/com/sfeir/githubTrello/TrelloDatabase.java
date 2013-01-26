@@ -10,10 +10,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.sfeir.githubTrello.domain.trello.Board;
+import com.sfeir.githubTrello.domain.trello.Card;
 import com.sfeir.githubTrello.domain.trello.List;
+import com.sfeir.githubTrello.json.trello.CardMixin;
+import com.sfeir.githubTrello.json.trello.ListMixin;
+import com.sfeir.githubTrello.wrapper.Json;
 
 import static com.google.common.base.Strings.*;
 import static com.sfeir.githubTrello.domain.trello.List.*;
+import static com.sfeir.githubTrello.wrapper.Json.*;
 import static java.lang.String.*;
 import static org.apache.commons.dbutils.DbUtils.*;
 
@@ -23,18 +28,15 @@ public final class TrelloDatabase implements AutoCloseable {
 
 
 	private void init(String name) throws SQLException, IOException {
+
 		String table = format("CREATE TABLE %s (%s INT PRIMARY KEY auto_increment, %s varchar(255), %s varchar(255), %s varchar(255), %s LONGVARCHAR)",
 				TABLE_NAME, SNAPSHOT_ID_FIELD, TOKEN_FIELD, BOARD_ID_FIELD, LIST_ID_FIELD, CARDS_FIELD);
 
 		File csvFile = new File(csvFileName);
-		if (csvFile.exists() && csvFile.isFile()) {
+		if (csvFile.exists() && csvFile.isFile())
 			table += format(" as SELECT * FROM CSVREAD('%s')", csvFileName);
-		}
-		else {
-			if (!csvFile.createNewFile()) {
-				throw new IOException("Can't create file " + csvFileName);
-			}
-		}
+		else if (!csvFile.createNewFile())
+			throw new IOException("Can't create file " + csvFileName);
 
 		String url = "jdbc:h2:mem:" + nullToEmpty(name);
 		connection = DriverManager.getConnection(url, "sa", "");
@@ -54,9 +56,9 @@ public final class TrelloDatabase implements AutoCloseable {
 			selectStatement.setString(3, listId);
 			ResultSet results = selectStatement.executeQuery();
 			if (!results.next()) {
-				return listBuilder().build();
+				return nullList();
 			}
-			return listBuilder().id(results.getString(LIST_ID_FIELD)).cardsInJson(results.getString(CARDS_FIELD)).build();
+			return listBuilder().id(results.getString(LIST_ID_FIELD)).cards(json.toObjects(results.getString(CARDS_FIELD), Card.class)).build();
 		}
 	}
 
@@ -69,7 +71,7 @@ public final class TrelloDatabase implements AutoCloseable {
 			mergeStatement.setString(1, token);
 			mergeStatement.setString(2, board.getId());
 			mergeStatement.setString(3, list.getId());
-			mergeStatement.setString(4, list.getCardsInJson());
+			mergeStatement.setString(4, json.toString(list.getCards()));
 			mergeStatement.execute();
 		}
 	}
@@ -129,11 +131,18 @@ public final class TrelloDatabase implements AutoCloseable {
 	private Connection connection;
 	private String csvFileName;
 
+	private static Json json = jsonBuilder()
+		.withMixin(List.class, ListMixin.class)
+		.withMixin(Card.class, CardMixin.class)
+		.build();
+	
 	private static final String TABLE_NAME = "Trello_Snapshot";
 	private static final String SNAPSHOT_ID_FIELD = "snapshot_id";
 	private static final String TOKEN_FIELD = "token";
 	private static final String BOARD_ID_FIELD = "board_id";
 	private static final String LIST_ID_FIELD = "list_id";
 	private static final String CARDS_FIELD = "cards";
+	
+	
 
 }

@@ -2,20 +2,21 @@ package com.sfeir.githubTrello.wrapper;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ArrayNode;
+
+import static com.google.common.collect.Maps.*;
 
 import static java.util.Collections.*;
 
 public final class Json {
-	public static <T> T fromJsonToObject(String json, Class<T> type) {
+
+	public <T> T toObject(String json, Class<T> type) {
 		try {
 			return mapper.readValue(json, type);
 		}
@@ -31,7 +32,7 @@ public final class Json {
 		}
 	}
 
-	public static <T> Collection<T> fromJsonToObjects(String json, Class<T> type) {
+	public <T> Collection<T> toObjects(String json, Class<T> type) {
 		try {
 			return mapper.readValue(json, mapper.getTypeFactory().constructCollectionType(Collection.class, type));
 		}
@@ -41,7 +42,7 @@ public final class Json {
 		}
 	}
 
-	public static String fromObjectToJson(Object object) {
+	public String toString(Object object) {
 		try {
 			return mapper.writeValueAsString(object);
 		}
@@ -51,36 +52,47 @@ public final class Json {
 		}
 	}
 
-	public static String extractValue(String json, String... attributes) {
-		JsonNode node = fromJsonToObject(json, JsonNode.class);
-		for (String attribute : attributes) {
-			node = node.isArray() ? fromMultipleNodes(attribute, ((ArrayNode) node)) : node.get(attribute);
+	public String extract(String json, String... attributes) {
+		try {
+			JsonNode node = mapper.readTree(json);
+			for (String attribute : attributes)
+				node = node.get(attribute);
+			return node.getTextValue();
+		} catch (IOException e) {
+			logger.error(e, e);
+			return "";
 		}
-		return node.getTextValue();
 	}
 
+	public static Builder jsonBuilder() {
+		return new Builder();
+	}
 
-	private static JsonNode fromMultipleNodes(String attribute, ArrayNode node) {
-		Matcher matcher = Pattern.compile("(.*)\\[(.*)=(.*)\\]").matcher(attribute);
-		if (!matcher.matches()) {
-			logger.warn("Json node with multiple elements with attribute: " + attribute);
+	public static class Builder {
+		public Builder withMixin(Class<?> target, Class<?> mixin) {
+			mixins.put(target, mixin);
+			return this;
 		}
-		String actualAttribute = matcher.group(1);
-		String key = matcher.group(2);
-		String value = matcher.group(3);
 
-		Iterator<JsonNode> elements = node.getElements();
-		while (elements.hasNext()) {
-			JsonNode element = elements.next();
-			if (value.equals(element.get(key).getTextValue())) {
-				return element.get(actualAttribute);
+		public Json build() {
+			Json converter = new Json();
+			for (Entry<Class<?>, Class<?>> association : mixins.entrySet()) {
+				converter.mix(association.getKey(), association.getValue());
 			}
+			return converter;
 		}
-		return node;
+
+		private Map<Class<?>, Class<?>> mixins = newHashMap();
+	}
+
+	private void mix(Class<?> targetClass, Class<?> mixinClass) {
+		mapper.getSerializationConfig().addMixInAnnotations(targetClass, mixinClass);
+		mapper.getDeserializationConfig().addMixInAnnotations(targetClass, mixinClass);
 	}
 
 	private Json() {}
 
-	private static final ObjectMapper mapper = new ObjectMapper();
+	private final ObjectMapper mapper = new ObjectMapper();
 	private static final Log logger = LogFactory.getLog(Json.class);
+
 }
